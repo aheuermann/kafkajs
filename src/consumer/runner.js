@@ -381,8 +381,11 @@ module.exports = class Runner {
     return this.retrier(async (bail, retryCount, retryTime) => {
       try {
         this.consuming = true
-        await this.fetch()
-        this.consuming = false
+        try {
+          await this.fetch()
+        } finally {
+          this.consuming = false
+        }
         setImmediate(() => this.scheduleFetch())
       } catch (e) {
         if (!this.running) {
@@ -442,8 +445,6 @@ module.exports = class Runner {
         })
 
         throw e
-      } finally {
-        this.consuming = false
       }
     }).catch(this.onCrash)
   }
